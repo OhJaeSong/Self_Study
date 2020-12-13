@@ -1,0 +1,197 @@
+<html>
+    <head>
+        <script type="text/javascript" src="abilist.js"></script>
+        <script type="text/javascript">
+            var accounts = null;
+            var cfcontractInstance = null;
+            var resultbox = null;
+            var callbacks = new Map();
+
+            window.addEventListener('load', deliveryInit);
+
+            async function deliveryInit() {
+                if (window.ethereum) {
+                    ethereum.autoRefreshOnNetworkChange = false;
+                    window.ethereum.on('networkChanged', function(id) {console.log(id) });
+                    window.web3 = new Web3(ethereum);
+                    accounts = await ethereum.enable();
+                    //web3.eth.getBalance(accounts[0], function(err, res) { console.log(res)});
+
+                    getDeliveryInstance();
+
+                // Legacy dapp browsers...
+                } else if (window.web3) {
+                    window.web3 = new Web3(web3.currentProvider);
+                }
+                // Non-dapp browsers...
+                else {
+                    console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+                    window.web3 = null
+                }
+            }
+
+            function getDeliveryInstance() {
+                var address = "0x8b6f8581904266eAa1a32439A522De1d609435F7";
+                var namereg = web3.eth.contract(nameregistryabi).at(address);//, cfcontractInstance);
+                try {
+                    namereg.getAddr("delivery", function(err, value) {
+                        cfcontractInstance = web3.eth.contract(deAbi).at(value);
+                        registerEventHandlers();
+                    });
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+
+            function registerEventHandlers() {
+                let btn = document.getElementById("addProduct");
+                btn.addEventListener('click', addProduct);
+                btn = document.getElementById("addDeliverer");
+                btn.addEventListener('click', addDeliverer);
+                btn = document.getElementById("deliverers");
+                btn.addEventListener('click', deliverers);
+                btn = document.getElementById("products");
+                btn.addEventListener('click', products);
+                btn = document.getElementById("getProductInfo");
+                btn.addEventListener('click', getProductInfo);
+                btn = document.getElementById("numDeliverer");
+                btn.addEventListener('click', numDeliverer);
+
+                resultbox = document.getElementById("resultbox");
+            }
+
+            async function addProduct() {
+                if (cfcontractInstance != null) {
+                    try {
+                        let sSerialNumber = document.getElementById("serialNumber").value;
+                        let sProductName = document.getElementById("productName").value;
+                        cfcontractInstance.addProduct(sSerialNumber, sProductName, function (err, value) {
+                            resultbox.innerHTML = value;
+                        });
+
+                    } catch (error) {
+                        resultbox.innerHTML = "error occured";
+                        console.log(error);
+                    }
+                }
+            }
+
+            async function addDeliverer() {
+                if (cfcontractInstance != null) {
+                    try {
+                        let sSerialNumber = document.getElementById("serialNumber").value;
+                        let sDelivererName = document.getElementById("delivererName").value;
+                        cfcontractInstance.addDeliverer(sSerialNumber, sDelivererName, function (err, value) {
+                            resultbox.innerHTML = value;
+                        });
+
+                    } catch (error) {
+                        resultbox.innerHTML = "error occured";
+                        console.log(error);
+                    }
+                }
+            }
+
+            async function deliverers() {
+                if (cfcontractInstance != null) {
+                    try {
+                        let nDelivererIndex = document.getElementById("delivererIndex").value;
+                        cfcontractInstance.deliverers(nDelivererIndex, function (err, value) {
+                            resultbox.innerHTML = value;
+                        });
+
+                    } catch (error) {
+                        resultbox.innerHTML = "error occured";
+                        console.log(error);
+                    }
+                }
+            }
+
+            async function products() {
+                if (cfcontractInstance != null) {
+                    try {
+                        let sSerialNumber = document.getElementById("serialNumber").value;
+                        cfcontractInstance.products(sSerialNumber, function (err, value) {
+                            resultbox.innerHTML = value;
+                        });
+
+                    } catch (error) {
+                        resultbox.innerHTML = "error occured";
+                        console.log(error);
+                    }
+                }
+            }
+
+            async function getProductInfo() {
+                if (cfcontractInstance != null) {
+                    try {
+                        let sSerialNumber = document.getElementById("serialNumber").value;
+                        cfcontractInstance.getProductInfo(sSerialNumber, function (err, value) {
+                            resultbox.innerHTML = value;
+                        });
+
+                    } catch (error) {
+                        resultbox.innerHTML = "error occured";
+                        console.log(error);
+                    }
+                }
+            }
+
+            async function numDeliverer() {
+                if (cfcontractInstance != null) {
+                    try {
+                        cfcontractInstance.numDeliverer(function (err, value) {
+                            resultbox.innerHTML = value;
+                        });
+
+                    } catch (error) {
+                        resultbox.innerHTML = "error occured";
+                        console.log(error);
+                    }
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <h1>
+            Delivery Test
+        </h1>
+        <br/>
+
+        SerialNumber :
+        <input type="text" id="serialNumber" value="">
+        <br/>
+        ProductName :
+        <input type="text" id="productName" value="">
+        <br/>
+        DelivererName :
+        <input type="text" id="delivererName" value="">
+        <br/>
+        DelivererIndex :
+        <input type="text" id="delivererIndex" value="">
+        <br/><br/>
+
+
+        <input type="button" id="addProduct" value="addProduct()">
+        * require : SerialNumber,ProductName<br/><br/>
+        
+        <input type="button" id="addDeliverer" value="addDeliverer()">
+        * require : SerialNumber,DelivererName<br/><br/>        
+
+        <input type="button" id="numDeliverer" value="numDeliverer()">
+        <br/><br/>
+
+        <input type="button" id="deliverers" value="deliverers()">
+        * require : DelivererIndex(Number)<br/><br/>
+
+        <input type="button" id="products" value="products()">
+        * require : SerialNumber<br/><br/>
+        
+        <input type="button" id="getProductInfo" value="getProductInfo()">
+        * require : SerialNumber<br/><br/>
+
+        Result:
+        <span id="resultbox"></span>
+
+    </body>
+</html>
