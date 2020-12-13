@@ -10,15 +10,15 @@ public class ttsTest {
         String clientId = "9vvfkq7nls";// Application Client ID";
         String clientSecret = "ciWc0V5As7ZJS6JpxYJ46KAo2YC2cy0J8FNFAKdP";// Application Client Secret";
         try {
-            String text = URLEncoder.encode("잘 이해하지 못했어요.", "UTF-8"); 
-            String apiURL = "https://naveropenapi.apigw.ntruss.com/voice-premium/v1/tts";
+            String text = URLEncoder.encode("테스트를 시작합니다. 글자 인식을 한번 살펴 봅시다.", "UTF-8"); 
+            String apiURL = "https://naveropenapi.apigw.ntruss.com/voice/v1/tts";
             URL url = new URL(apiURL);
             HttpURLConnection con = (HttpURLConnection)url.openConnection();
             con.setRequestMethod("POST");
             con.setRequestProperty("X-NCP-APIGW-API-KEY-ID", clientId);
             con.setRequestProperty("X-NCP-APIGW-API-KEY", clientSecret);
             // post request
-            String postParams = "speaker=nara&volume=0&speed=0&pitch=0&emotion=0&format=mp3&text=" + text;
+            String postParams = "speaker=jinho&speed=0&text=" + text;
             con.setDoOutput(true);
             DataOutputStream wr = new DataOutputStream(con.getOutputStream());
             wr.writeBytes(postParams);
